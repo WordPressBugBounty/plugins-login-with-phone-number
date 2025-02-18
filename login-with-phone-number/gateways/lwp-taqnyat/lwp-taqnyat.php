@@ -1,131 +1,83 @@
 <?php
-
-class lwp_textlocal
+//require_once __DIR__ . '/vendor/autoload.php';
+class lwp_taqnyat
 {
     function __construct()
     {
         add_action('idehweb_custom_fields', array(&$this, 'admin_init'));
         add_filter('lwp_add_to_default_gateways', array(&$this, 'lwp_add_to_default_gateways'));
-        add_action('lwp_send_sms_textlocal', array(&$this, 'lwp_send_sms_textlocal'), 10, 2);
-
+        add_action('lwp_send_sms_taqnyat', array(&$this, 'lwp_send_sms_taqnyat'), 10, 2);
     }
-
 
     function lwp_add_to_default_gateways($args = [])
     {
         if (!is_array($args)) {
             $args = [];
         }
-        array_push($args, ["value" => "textlocal", "label" => __("textlocal", 'lwp-textlocal')]);
-
+        array_push($args, ["value" => "taqnyat", "label" => __("Taqnyat", 'login-with-phone-number')]);
         return $args;
-
     }
 
     function admin_init()
     {
-
-        add_settings_field('idehweb_textlocal_apikey', __('Enter Textlocal api key', 'lwp-textlocal'), array(&$this, 'setting_idehweb_apikey'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-gateways related_to_textlocal']);
-//        add_settings_field('idehweb_textlocal_hash', __('Enter textlocal hash', 'lwp-textlocal'), array(&$this, 'setting_idehweb_hash'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-gateways related_to_textlocal']);
-        add_settings_field('idehweb_textlocal_sender', __('Enter Textlocal sender', 'lwp-textlocal'), array(&$this, 'setting_idehweb_sender'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-gateways related_to_textlocal']);
-        add_settings_field('idehweb_textlocal_message', __('Enter Textlocal message', 'lwp-textlocal'), array(&$this, 'setting_idehweb_message'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-gateways related_to_textlocal']);
-
+        add_settings_field('idehweb_taqnyat_token', __('Enter taqnyat token', 'login-with-phone-number'), array(&$this, 'setting_idehweb_token'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-gateways related_to_taqnyat']);
+        add_settings_field('idehweb_taqnyat_from', __('Enter taqnyat from', 'login-with-phone-number'), array(&$this, 'setting_idehweb_from'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-gateways related_to_taqnyat']);
     }
 
-
-    function settings_validate($input)
-    {
-
-        return $input;
-    }
-
-
-//
-    function lwp_send_sms_textlocal($phone_number, $code)
+    function lwp_send_sms_taqnyat($phone_number, $code)
     {
         $options = get_option('idehweb_lwp_settings');
-        if (!isset($options['idehweb_textlocal_apikey'])) $options['idehweb_textlocal_apikey'] = '';
-        if (!isset($options['idehweb_textlocal_sender'])) $options['idehweb_textlocal_sender'] = '';
-        if (!isset($options['idehweb_textlocal_message'])) $options['idehweb_textlocal_message'] = '';
-        $apikey = $options['idehweb_textlocal_apikey'];
-        $sender = $options['idehweb_textlocal_sender'];
-        $message = $options['idehweb_textlocal_message'];
-        $message=$this->lwp_replace_strings($message,'',$code);
-        $message=rawurlencode($message);
-        $numbers = $phone_number;
-        $test = "0";
-        $message = urlencode($message);
-//        $data = "username=".$apikey."&hash=".$hash."&message=".$message."&sender=".$sender."&numbers=".$numbers."&test=".$test;
-        $url="https://api.textlocal.in/send/?apikey=$apikey&sender=$sender&numbers=$numbers&message=$message";
+        $token = isset($options['idehweb_taqnyat_token']) ? sanitize_text_field($options['idehweb_taqnyat_token']) : '';
+        $from = isset($options['idehweb_taqnyat_from']) ? sanitize_text_field($options['idehweb_taqnyat_from']) : '';
+        $message_body = $this->lwp_replace_strings('Your verification code is: ${code}', $phone_number, $code);
+        $url = "https://api.taqnyat.sa/v1/messages";
 
-        $response = wp_safe_remote_get($url, [
-            'timeout' => 60,
-            'redirection' => 1,
-            'headers' => array(),
-//            'body' => $data
+        $data = [
+            'recipients'=> ['966' . $phone_number],
+            'body'=> $message_body,
+            'sender'=> $from,
+        ];
+
+        $response = wp_remote_post($url, [
+            'method' => 'post',
+            'body' => json_encode($data),
+            'headers'=> [
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer'. $token,
+            ],
+            'timeout'=> 60,
         ]);
 
-        $body = wp_remote_retrieve_body($response);
-//        print_r($body);
-//        die();
+//        if (!is_wp_error($response)) {
+//            error_log('Message sent successfully: ' . print_r($response, true));
+//        }
     }
-    public function lwp_replace_strings($string, $phone, $code, $message = '')
-    {
-        $string = str_replace('${phone_number}', $phone, $string);
-        $string = str_replace('${code}', $code, $string);
-        $string = str_replace('${message}', $message, $string);
 
-//        $string = str_replace('${text}', $text, $string);
+    public function lwp_replace_strings($string, $phone, $code)
+    {
+        $string = str_replace('${phone_number}', sanitize_text_field($phone), $string);
+        $string = str_replace('${code}', sanitize_text_field($code), $string);
         return $string;
     }
-    function setting_idehweb_apikey()
+
+    function setting_idehweb_token()
     {
         $options = get_option('idehweb_lwp_settings');
-        if (!isset($options['idehweb_textlocal_apikey'])) $options['idehweb_textlocal_apikey'] = '';
-        echo '<input type="text" name="idehweb_lwp_settings[idehweb_textlocal_apikey]" class="regular-text" value="' . esc_attr($options['idehweb_textlocal_apikey']) . '" />
-		<p class="description">' . __('Enter textlocal Api key', 'lwp-textlocal') . '</p>';
-
+        $token = isset($options['idehweb_taqnyat_token']) ? esc_attr($options['idehweb_taqnyat_token']) : '';
+        echo '<input type="text" name="idehweb_lwp_settings[idehweb_taqnyat_token]" class="regular-text" value="' . $token . '" /> ';
+        echo '<p class="description">' . __('Enter taqnyat token', 'login-with-phone-number') . '</p>';
     }
 
-    function setting_idehweb_sender()
+    function setting_idehweb_from()
     {
         $options = get_option('idehweb_lwp_settings');
-        if (!isset($options['idehweb_textlocal_sender'])) $options['idehweb_textlocal_sender'] = '';
-        echo '<input type="text" name="idehweb_lwp_settings[idehweb_textlocal_sender]" class="regular-text" value="' . esc_attr($options['idehweb_textlocal_sender']) . '" />
-		<p class="description">' . __('Enter Enter textlocal sender', 'lwp-textlocal') . '</p>';
-
-    }
-
-//    function setting_idehweb_from()
-//    {
-//        $options = get_option('idehweb_lwp_settings');
-//        if (!isset($options['lwp_textlocal_from'])) $options['lwp_textlocal_from'] = '';
-//        echo '<input type="text" name="idehweb_lwp_settings[lwp_textlocal_from]" class="regular-text" value="' . esc_attr($options['lwp_textlocal_from']) . '" />
-//		<p class="description">' . __('enter from number', 'lwp-textlocal') . '</p>';
-//
-//    }
-    function setting_idehweb_message()
-    {
-
-        $options = get_option('idehweb_lwp_settings');
-        if (!isset($options['idehweb_textlocal_message'])) $options['idehweb_textlocal_message'] = '';
-        else $options['idehweb_textlocal_message'] = sanitize_textarea_field($options['idehweb_textlocal_message']);
-
-        echo '<textarea name="idehweb_lwp_settings[idehweb_textlocal_message]" class="regular-text">' . esc_attr($options['idehweb_textlocal_message']) . '</textarea>
-		<p class="description">' . __('enter message, use ${code}', 'login-with-phone-number') . '</p>';
+        $from = isset($options['idehweb_taqnyat_from']) ? esc_attr($options['idehweb_taqnyat_from']) : '';
+        echo '<input type="text" name="idehweb_lwp_settings[idehweb_taqnyat_from]" class="regular-text" value="' . $from . '" /> ';
+        echo '<p class="description">' . __('Enter taqnyat from (sender)', 'login-with-phone-number') . '</p>';
     }
 }
 
-global $lwp_textlocal;
-$lwp_textlocal = new lwp_textlocal();
+global $lwp_taqnyat;
+$lwp_taqnyat = new lwp_taqnyat();
 
-/**
- * Template Tag
- */
-function lwp_textlocal()
-{
-
-}
-
-
-
+?>
