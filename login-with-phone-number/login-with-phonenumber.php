@@ -3,7 +3,7 @@
 Plugin Name: Login with phone number
 Plugin URI: https://idehweb.com
 Description: Login with phone number - sending sms - activate user by phone number - limit pages to login - register and login with ajax - modal
-Version: 1.7.83
+Version: 1.7.84
 Author: Hamid Alinia - idehweb
 Author URI: https://idehweb.com
 Text Domain: login-with-phone-number
@@ -398,160 +398,6 @@ class idehwebLwp
     function settings_page()
     {
         $options = get_option('idehweb_lwp_settings');
-//
-//        if (isset($_POST['lwp_select_gateway']) && !empty($_POST['lwp_gateway'])) {
-//            $selected_gateway = sanitize_text_field($_POST['lwp_gateway']);
-//            wp_redirect(admin_url("admin.php?page=idehweb-lwp&skip_wizard=1#lwp-tab-gateway-settings"));
-//            exit;
-//        }
-//
-//        if (!isset($_GET['skip_wizard']) && !isset($_POST['lwp_select_gateway'])) {
-//            ?>
-<!--            <div class="lwp-wizard-overlay">-->
-<!--                <div class="lwp-wizard">-->
-<!--                    <p>Please select your SMS Gateway:</p>-->
-<!--                    <form method="post" id="gateway-form">-->
-<!--                        <div class="gateway-options">-->
-<!--                            <label class="gateway-label">-->
-<!--                                <input type="radio" name="lwp_gateway" value="twilio">-->
-<!--                                --><?php //_e("Twilio", "login-with-phone-number"); ?>
-<!--                                <a href="https://idehweb.com/product/twilio-gateway-for-login-with-phone-number/" target="_blank" class="purchase-link">-->
-<!--                                    --><?php //_e("shopping (No expiration date)", "login-with-phone-number"); ?>
-<!--                                </a>-->
-<!--                            </label>-->
-<!---->
-<!--                            <label class="gateway-label">-->
-<!--                                <input type="radio" name="lwp_gateway" value="whatsapp">-->
-<!--                                --><?php //_e("WhatsApp", "login-with-phone-number"); ?>
-<!--                                <a  href="https://idehweb.com/product/whatsapp-gateway-for-login-with-phone-number/" target="_blank" class="purchase-link">-->
-<!--                                    --><?php //_e("shopping (No expiration date)", "login-with-phone-number"); ?>
-<!--                                </a>-->
-<!--                            </label>-->
-<!---->
-<!--                            <label class="gateway-label">-->
-<!--                                <input type="radio" name="lwp_gateway" value="Telegram">-->
-<!--                                --><?php //_e("Telegram", "login-with-phone-number"); ?>
-<!--                                <a href="https://idehweb.com/product/telegram-gateway-for-login-with-phone-number-2/" target="_blank" class="purchase-link">-->
-<!--                                    --><?php //_e("shopping (No expiration date)", "login-with-phone-number"); ?>
-<!--                                </a>-->
-<!--                            </label>-->
-<!---->
-<!--                            <label class="gateway-label">-->
-<!--                                <input type="radio" name="lwp_gateway" value="firebase" required>-->
-<!--                                --><?php //_e("firebase", "login-with-phone-number"); ?>
-<!--                            </label>-->
-<!---->
-<!--                            <label class="gateway-label">-->
-<!--                                <input type="radio" name="lwp_gateway" value="mshastra">-->
-<!--                                --><?php //_e("mshastra", "login-with-phone-number"); ?>
-<!--                            </label>-->
-<!---->
-<!--                            <label class="gateway-label">-->
-<!--                                <input type="radio" name="lwp_gateway" value="Textlocal">-->
-<!--                                --><?php //_e("Textlocal", "login-with-phone-number"); ?>
-<!--                            </label>-->
-<!---->
-<!--                            <label class="gateway-label">-->
-<!--                                <input type="radio" name="lwp_gateway" value="Taqnyat" required>-->
-<!--                                --><?php //_e("Taqnyat", "login-with-phone-number"); ?>
-<!--                            </label>-->
-<!---->
-<!--                            <label class="gateway-label">-->
-<!--                                <input type="radio" name="lwp_gateway" value="trustsignal">-->
-<!--                                --><?php //_e("trustsignal", "login-with-phone-number"); ?>
-<!--                            </label>-->
-<!---->
-<!--                            <label class="gateway-label">-->
-<!--                                <input type="radio" name="lwp_gateway" value="Ultramsg">-->
-<!--                                --><?php //_e("Ultramsg", "login-with-phone-number"); ?>
-<!--                            </label>-->
-<!--                        </div>-->
-<!---->
-<!--                        <br>-->
-<!--                        <input type="submit" name="lwp_select_gateway" value="--><?php //_e('Next', 'login-with-phone-number'); ?><!--" class="button-primary">-->
-<!--                        <a href="admin.php?page=idehweb-lwp&skip_wizard=1" class="button">--><?php //_e("Skip", "login-with-phone-number"); ?><!--</a>-->
-<!--                    </form>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--            <script>-->
-<!--                document.addEventListener("DOMcontentloaded",function (){-->
-<!--                    if (window.location.search.includes("skip_wizard=1")){-->
-<!--                        let wizard= document.querySelector(".lwp-wizard-overlay");-->
-<!--                        if (wizard) {-->
-<!--                            wizard.style.display = "none";-->
-<!--                        }-->
-<!--                    }-->
-<!--                });-->
-<!--            </script>-->
-<!--            <style>-->
-<!--                /* wizard */-->
-<!--                /* wizard */-->
-<!--                .gateway-options {-->
-<!--                    display: flex;-->
-<!--                    flex-direction: column;-->
-<!--                    gap: 10px;-->
-<!--                    max-width: 500px;-->
-<!--                }-->
-<!---->
-<!--                .gateway-label {-->
-<!--                    display: flex;-->
-<!--                    align-items: center;-->
-<!--                    justify-content: space-between;-->
-<!--                    width: 100%;-->
-<!--                    border: 1px solid #ddd;-->
-<!--                    padding: 8px;-->
-<!--                    border-radius: 5px;-->
-<!--                    background: #f9f9f9;-->
-<!--                }-->
-<!---->
-<!--                .gateway-label input {-->
-<!--                    margin-right: 10px;-->
-<!--                }-->
-<!---->
-<!--                .purchase-link {-->
-<!--                    margin-left: auto;-->
-<!--                    color: blue;-->
-<!--                    text-decoration: underline;-->
-<!--                }-->
-<!--                .lwp-wizard-overlay {-->
-<!--                    position: fixed;-->
-<!--                    top: 0;-->
-<!--                    left: 0;-->
-<!--                    width: 100%;-->
-<!--                    height: 100%;-->
-<!--                    background: rgba(0, 0, 0, 0.5);-->
-<!--                    display: flex;-->
-<!--                    align-items: center;-->
-<!--                    justify-content: center;-->
-<!--                }-->
-<!--                .lwp-wizard {-->
-<!--                    background: white;-->
-<!--                    padding: 20px;-->
-<!--                    border-radius: 10px;-->
-<!--                    width: 400px;-->
-<!--                    text-align: center;-->
-<!--                    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);-->
-<!--                }-->
-<!--                select {-->
-<!--                    width: 100%;-->
-<!--                    padding: 5px;-->
-<!--                    margin-top: 10px;-->
-<!--                }-->
-<!--                .button {-->
-<!--                    margin-left: 10px;-->
-<!--                    background: red;-->
-<!--                    color: white;-->
-<!--                    border: none;-->
-<!--                    padding: 7px 15px;-->
-<!--                    cursor: pointer;-->
-<!--                    text-decoration: none;-->
-<!--                    display: inline-block;-->
-<!--                }-->
-<!--            </style>-->
-<!--            --><?php
-//            return;
-//        }
-
         if (!isset($options['idehweb_phone_number'])) $options['idehweb_phone_number'] = '';
         if (!isset($options['idehweb_token'])) $options['idehweb_token'] = '';
         if (!isset($options['idehweb_online_support'])) $options['idehweb_online_support'] = '1';
@@ -731,18 +577,20 @@ class idehwebLwp
                     <?php $locale = get_locale();
                     if ($locale == 'fa_IR') {
                         ?>
+                        <a style="margin-top: 10px;display:block"
+                             href="https://idehweb.ir/%D8%B7%D8%B1%D8%A7%D8%AD%DB%8C-%D8%B3%D8%A7%DB%8C%D8%AA-%D8%AF%D8%B1-%D8%A7%DB%8C%D8%AF%D9%87-%D9%88%D8%A8"
+                             target="_blank">
+                        <img style="width: 100%;max-width: 100%"
+                             src="<?php echo plugins_url('/images/web-design.gif', __FILE__) ?>"/>
+                        </a>
+
                         <a style="display:block"
                            href="https://idehweb.ir/%D8%A2%D9%85%D9%88%D8%B2%D8%B4-%D9%86%D8%B5%D8%A8-%D8%A7%D9%81%D8%B2%D9%88%D9%86%D9%87-%D9%88%D8%B1%D9%88%D8%AF-%D8%A8%D8%A7-%D8%B4%D9%85%D8%A7%D8%B1%D9%87-%D9%85%D9%88%D8%A8%D8%A7%DB%8C%D9%84-%D8%AF"
                            target="_blank">
                             <img style="width: 100%;max-width: 100%"
                                  src="<?php echo plugins_url('/images/login-with-phone number-for-iran.gif', __FILE__) ?>"/>
                         </a>
-                        <a style="margin-top: 10px;display:block"
-                           href="https://idehweb.ir/%D8%B7%D8%B1%D8%A7%D8%AD%DB%8C-%D8%B3%D8%A7%DB%8C%D8%AA-%D8%AF%D8%B1-%D8%A7%DB%8C%D8%AF%D9%87-%D9%88%D8%A8"
-                           target="_blank">
-                            <img style="width: 100%;max-width: 100%"
-                                 src="<?php echo plugins_url('/images/web-design.gif', __FILE__) ?>"/>
-                        </a>
+
                         <a style="margin-top: 10px;display:block"
                            href="https://idehweb.ir/product/%D9%82%D8%A7%D9%84%D8%A8-%D9%88%D8%B1%D8%AF%D9%BE%D8%B1%D8%B3%DB%8C-%D9%86%D9%88%D8%AF%DB%8C-%D9%88%D8%A8/?utm_source=lwp-plugin&utm_medium=banner-nodeeweb&utm_campaign=plugin-install"
                            target="_blank">
@@ -754,17 +602,18 @@ class idehwebLwp
                     } else {
 
                         ?>
+                        <a style="margin-top: 10px;display:block"
+                           href="https://idehweb.com/?utm_source=lwp-plugin&utm_medium=banner-webdesign&utm_campaign=plugin-install"
+                           target="_blank">
+                            <img style="width: 100%;max-width: 100%"
+                                 src="<?php echo plugins_url('/images/webdesign.gif', __FILE__) ?>"/>
+                        </a>
                         <a href="https://idehweb.com/product/login-with-phone-number-in-wordpress/?utm_source=lwp-plugin&utm_medium=banner-lwp&utm_campaign=plugin-install"
                            target="_blank">
                             <img style="width: 100%;max-width: 100%"
                                  src="<?php echo plugins_url('/images/login-with-phone-number-en-final1.gif', __FILE__) ?>"/>
                         </a>
-                        <a style="margin-top: 10px;display:block"
-                           href="https://idehweb.com/?utm_source=lwp-plugin&utm_medium=banner-webdesign&utm_campaign=plugin-install"
-                           target="_blank">
-                            <img style="width: 100%;max-width: 100%"
-                                 src="<?php echo plugins_url('/images/webdesign.webp', __FILE__) ?>"/>
-                        </a>
+
                         <a style="margin-top: 10px;display:block"
                            href="https://idehweb.com/product/nodeeweb-wordpress-theme/?utm_source=lwp-plugin&utm_medium=banner-nodeeweb&utm_campaign=plugin-install"
                            target="_blank">
