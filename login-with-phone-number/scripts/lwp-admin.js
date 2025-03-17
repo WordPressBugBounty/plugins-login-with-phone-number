@@ -2,11 +2,17 @@ jQuery(document).ready(function ($) {
     var default_tab = window.location.hash ? window.location.hash.substring(1) : 'lwp-tab-general-settings'; // Default to 'gateway-settings'
     // $('#' + initialTab).addClass('active');
 
+    function getQueryParam(param) {
+        let urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    // Get the selected_gateway from the URL
+    let selectedGateway = getQueryParam("selected_gateway");
 
     jQuery('.ilwplabel').css('display', 'none')
     console.log("let's make all " + ".ilwplabel." + default_tab + " display table-row")
     jQuery('.ilwplabel.' + default_tab).css('display', 'table-row')
-
 
     //related to general tabs
     var edf = $('#idehweb_lwp_settings_idehweb_sms_login');
@@ -14,10 +20,14 @@ jQuery(document).ready(function ($) {
     var related_to_phone_number_login = $('.related_to_phone_number_login');
     var related_to_entimer = $('.related_to_entimer');
 
-
     //related to gateway tabs
     // var edf3 = $('#idehweb_lwp_settings_use_custom_gateway');
+    console.log("selectedGateway", selectedGateway);
+
     var edf4 = $('#idehweb_default_gateways');
+
+    if (selectedGateway)
+        edf4.val(selectedGateway).trigger('change');
     // var related_to_defaultgateway = $('.related_to_defaultgateway');
     var related_to_login = $('.related_to_login');
 
@@ -29,7 +39,6 @@ jQuery(document).ready(function ($) {
         default_gateways = [];
     }
 
-
     //related to form tabs
     var edf6 = $('.idehweb_lwp_position_form');
     var edf7 = $('#idehweb_enable_accept_terms_and_condition');
@@ -38,7 +47,6 @@ jQuery(document).ready(function ($) {
 
 
     if (default_tab == 'lwp-tab-general-settings') {
-
 
         if (edf.is(':checked')) {
             related_to_phone_number_login.css('display', 'table-row');
@@ -158,7 +166,9 @@ jQuery(document).ready(function ($) {
                 let main_class = item.classList[2];
                 let main_gateways = main_class?.split('related_to_')
                 let main_gateway_name = main_gateways[1];
-                // console.log("main_gateway_name", main_gateway_name)
+                console.log("data", data)
+                // console.log("data", data)
+                console.log("main_gateway_name",".related_to_" + main_gateway_name)
 // if(!available_gateways.)
                 if (data.includes(main_gateway_name)) {
                     $(".related_to_" + main_gateway_name).css("display", "table-row")
@@ -274,6 +284,7 @@ jQuery(document).ready(function ($) {
             }
         });
     jQuery('.lwp-tabs-list').on('click', '.lwp-tab-item', function (e) {
+
         e.preventDefault();
         var lwp_data_tab = jQuery(this).attr("data-tab");
         jQuery('.ilwplabel').css('display', 'none')
