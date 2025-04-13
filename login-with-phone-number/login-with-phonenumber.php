@@ -3,7 +3,7 @@
 Plugin Name: Login with phone number
 Plugin URI: https://idehweb.com
 Description: Login with phone number - sending sms - activate user by phone number - limit pages to login - register and login with ajax - modal
-Version: 1.7.95
+Version: 1.7.96
 Author: Hamid Alinia - idehweb
 Author URI: https://idehweb.com
 Text Domain: login-with-phone-number
@@ -23,6 +23,7 @@ require 'gateways/lwp-MessageBird/lwp-MessageBird.php';
 require 'gateways/lwp-vonage/lwp-vonage.php';
 require 'gateways/lwp-alibabacloud/lwp-alibabacloud.php';
 require 'gateways/lwp-drpayamak/lwp-drpayamak.php';
+require 'gateways/lwp-smsgatway/lwp-smsgateway.php';
 
 if (!defined("ABSPATH"))
     exit;
