@@ -3,7 +3,7 @@
 Plugin Name: WooCommerce OTP Login With Phone Number, OTP Verification
 Plugin URI: https://idehweb.com/product/login-with-phone-number-in-wordpress/
 Description: Login with phone number - sending sms - activate user by phone number - limit pages to login - register and login with ajax - modal
-Version: 1.8.44
+Version: 1.8.46
 Author: Hamid Alinia - idehweb
 Author URI: https://idehweb.com/product/login-with-phone-number-in-wordpress/
 Text Domain: login-with-phone-number
@@ -140,8 +140,10 @@ class idehwebLwp
                 // Show admin notice if the API key is empty
                 ?>
                 <div class="notice notice-warning is-dismissible">
-                    <p><?php _e('Warning: To enable login via phone number, you need to activate an SMS gateway. For a more efficient and cost-effective solution, consider using the WhatsApp OTP gateway. Check out our WhatsApp packages for more details. <a href="' . esc_url( get_site_url() ) . '/wp-admin/admin.php?page=idehweb-lwp#lwp-tab-gateway-settings" target="_blank">Click here to configure your gateway settings.</a>', 'login-with-phone-number'); ?></p>
-
+                    <p><?php printf(
+								/* translators: %1$s: Opening anchor tag for gateway settings, %2$s: Closing anchor tag. */
+								esc_html__( 'Warning: To enable login via phone number, you need to activate an SMS gateway. For a more efficient and cost-effective solution, consider using the WhatsApp OTP gateway. Check out our WhatsApp packages for more details. %1$sClick here to configure your gateway settings.%2$s', 'login-with-phone-number' ),'<a href="' . esc_url( admin_url( 'admin.php?page=idehweb-lwp#lwp-tab-gateway-settings' ) ) . '" target="_blank">','</a>');?>
+					</p>
                 </div>
                 <?php
             }
@@ -387,7 +389,7 @@ class idehwebLwp
         add_settings_field('idehweb_password_login', __('Enable password login', 'login-with-phone-number'), array(&$this, 'setting_idehweb_password_login'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-tab-form-settings']);
         add_settings_field('idehweb_redirect_url', __('Enter redirect url', 'login-with-phone-number'), array(&$this, 'setting_idehweb_url_redirect'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-tab-general-settings']);
         add_settings_field('idehweb_length_of_activation_code', __('Enter length of activation code', 'login-with-phone-number'), array(&$this, 'setting_idehweb_length_of_activation_code'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-tab-general-settings']);
-        add_settings_field('idehweb_login_message', __('Enter login message', 'login-with-phone-number'), array(&$this, 'setting_idehweb_login_message'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel']);
+        add_settings_field('idehweb_login_message', __('Enter login message', 'login-with-phone-number'), array(&$this, 'setting_idehweb_login_message'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-tab-general-settings']);
         add_settings_field('idehweb_use_phone_number_for_username', __('use phone number for username', 'login-with-phone-number'), array(&$this, 'idehweb_use_phone_number_for_username'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-tab-general-settings']);
         add_settings_field('idehweb_default_username', __('Default username', 'login-with-phone-number'), array(&$this, 'setting_default_username'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel related_to_upnfu lwp-tab-general-settings']);
         add_settings_field('idehweb_default_nickname', __('Default nickname', 'login-with-phone-number'), array(&$this, 'setting_default_nickname'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel related_to_upnfu lwp-tab-general-settings']);
@@ -2583,11 +2585,13 @@ class idehwebLwp
         if (!is_array($options['idehweb_default_gateways'])) {
             $options['idehweb_default_gateways'] = [];
         }
-
+        $current_user = wp_get_current_user();
         $localize = array(
             'ajaxurl' => admin_url('admin-ajax.php'),
             'redirecturl' => $options['idehweb_redirect_url'],
             'UserId' => 0,
+            'UserName' => is_user_logged_in() ? $current_user->display_name : '',
+            'IsLoggedIn' => is_user_logged_in(),
             'loadingmessage' => __('please wait...', 'login-with-phone-number'),
             'timer' => $options['idehweb_enable_timer_on_sending_sms'],
             'timer_count' => $options['idehweb_timer_count'],
