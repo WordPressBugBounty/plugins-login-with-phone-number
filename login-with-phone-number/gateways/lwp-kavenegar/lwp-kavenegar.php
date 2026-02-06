@@ -14,7 +14,23 @@ class LWP_KavenegarSMS
         if (!is_array($args)) {
             $args = [];
         }
-        array_push($args, ["value" => "kavenegar", "label" => __("Kavenegar", 'login-with-phone-number')]);
+
+        $exists = false;
+
+        // Check if 'kavenegar' gateway already exists in the list
+        foreach ($args as &$gateway) {
+            if ($gateway['value'] === 'kavenegar') {
+                $gateway['label'] = esc_html__("Kavenegar", 'login-with-phone-number');
+                $gateway['isFree'] = true;
+                $exists = true;
+                break;
+            }
+        }
+
+        // If 'kavenegar' is not in the list, add it
+        if (!$exists) {
+            $args[] = ["value" => "kavenegar","isFree" => true, "label" => esc_html__("kavenegar", 'login-with-phone-number')];
+        }
         return $args;
     }
 
@@ -22,19 +38,10 @@ class LWP_KavenegarSMS
     {
         add_settings_field('idehweb_kavenegar_api_key', __('Enter Kavenegar API Key', 'login-with-phone-number'), array(&$this, 'setting_idehweb_api_key'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-gateways related_to_kavenegar']);
         add_settings_field('idehweb_kavenegar_template', __('Enter Kavenegar Template', 'login-with-phone-number'), array(&$this, 'setting_idehweb_template'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-gateways related_to_kavenegar']);
-//        wp_nonce_field('kavenegar_nonce_action', 'kavenegar_nonce');
     }
 
     function lwp_send_sms_kavenegar($phone_number, $code)
     {
-//        if (!preg_match('/^\+?\d{10,15}$/', $phone_number)) {
-//            die('Invalid phone number.');
-//        }
-//
-//        if (!isset($_POST['kavenegar_nonce']) || !wp_verify_nonce($_POST['kavenegar_nonce'], 'kavenegar_nonce_action')) {
-//            die('Security check failed.');
-//        }
-
         $options = get_option('idehweb_lwp_settings');
         $api_key = isset($options['idehweb_kavenegar_api_key']) ? sanitize_text_field($options['idehweb_kavenegar_api_key']) : '';
         $template = isset($options['idehweb_kavenegar_template']) ? sanitize_text_field($options['idehweb_kavenegar_template']) : '';
@@ -60,19 +67,18 @@ class LWP_KavenegarSMS
     {
         $options = get_option('idehweb_lwp_settings');
         $api_key = isset($options['idehweb_kavenegar_api_key']) ? esc_attr($options['idehweb_kavenegar_api_key']) : '';
-        echo '<input type="text" name="idehweb_lwp_settings[idehweb_kavenegar_api_key]" class="regular-text" value="' . $api_key . '" /> ';
-        echo '<p class="description">' . __('Enter Kavenegar API Key', 'login-with-phone-number') . '</p>';
+        echo '<input type="text" name="idehweb_lwp_settings[idehweb_kavenegar_api_key]" class="regular-text" value="' . esc_attr($api_key) . '" /> ';
+        echo '<p class="description">' . esc_html__('Enter Kavenegar API Key', 'login-with-phone-number') . '</p>';
     }
 
     function setting_idehweb_template()
     {
         $options = get_option('idehweb_lwp_settings');
         $template = isset($options['idehweb_kavenegar_template']) ? esc_attr($options['idehweb_kavenegar_template']) : '';
-        echo '<input type="text" name="idehweb_lwp_settings[idehweb_kavenegar_template]" class="regular-text" value="' . $template . '" /> ';
-        echo '<p class="description">' . __('Enter Kavenegar Template Name', 'login-with-phone-number') . '</p>';
-        echo '<p style="color: green" class="description">**For the validation method from the Kavenegar service.</p>';
+        echo '<input type="text" name="idehweb_lwp_settings[idehweb_kavenegar_template]" class="regular-text" value="' . esc_attr($template) . '" /> ';
+        echo '<p class="description">' . esc_html__('Enter Kavenegar Template Name', 'login-with-phone-number') . '</p>';
+        echo '<p style="color: green" class="description">' . esc_html__('**For the validation method from the Kavenegar service.', 'login-with-phone-number') . '</p>';
     }
-
 }
 
 global $lwp_kavenegar_sms;
