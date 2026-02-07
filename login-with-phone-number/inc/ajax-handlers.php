@@ -44,12 +44,12 @@ trait Ajax_Handlers
             wp_die('Busted!');
         }
 
-
+//        echo $phone_number;
+//        die();
         if (preg_replace('/^(\-){0,1}[0-9]+(\.[0-9]+){0,1}/', '', $username) == "") {
             $phone_number = ltrim($username, '0');
             $phone_number = substr($phone_number, 0, 15);
-//echo $phone_number;
-//die();
+
             if (strlen($phone_number) < 10) {
                 wp_send_json([
                     'success' => false,
