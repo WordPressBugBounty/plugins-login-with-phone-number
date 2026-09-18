@@ -11,8 +11,8 @@ trait Helper_Functions
             if ($plugin == plugin_basename(__FILE__)) {
                 // Sanitize the URL before passing it to wp_redirect
                 $redirect_url = admin_url('admin.php?page=login-with-phone-number-settings');
-                // Ensure no direct output before redirecting
-                wp_redirect(esc_url_raw($redirect_url)); // Using esc_url_raw for a redirect
+// Ensure no direct output before redirecting
+                wp_safe_redirect(esc_url_raw($redirect_url));
                 exit();
             }
         }
@@ -377,7 +377,7 @@ trait Helper_Functions
         echo '<p><a href="https://idehweb.com/product/login-with-phone-number-in-wordpress/" target="_blank" class="lwp_more_help">' . esc_html__('Need more help?', 'login-with-phone-number') . '</a></p>';
         echo '</div>';
 
-        echo '<div><button class="lwp-merge-combine-users">' . esc_html__('Sync old Woocommerce users billing phone', 'login-with-phone-number') . '</button></div>';
+        echo '<div><button type="button" class="lwp-merge-combine-users">' . esc_html__('Sync old Woocommerce users billing phone', 'login-with-phone-number') . '</button></div>';
     }
     function get_roles()
     {
@@ -504,6 +504,7 @@ trait Helper_Functions
 
         update_user_meta($user_id, 'activation_code', $six_digit_random_number);
         update_user_meta($user_id, 'activation_code_timestamp', time());
+        update_user_meta($user_id, 'lwp_otp_attempts', 0);
         if ($send_email) {
             $wp_mail = wp_mail($contact, __('Activation code', 'login-with-phone-number'), __('your activation code: ', 'login-with-phone-number') . $six_digit_random_number);
             return $wp_mail;

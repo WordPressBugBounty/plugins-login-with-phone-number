@@ -39,13 +39,13 @@ trait Admin_Functions
             plugins_url('/styles/lwp-admin.css',
                 dirname(__FILE__)),
             array(),
-            '1.8.61','all');
+            '1.8.73','all');
 
         wp_enqueue_style('idehweb-lwp-admin-select2-style',
             plugins_url('/styles/select2.min.css',
                 dirname(__FILE__)),
             array(),
-            '1.8.61','all');
+            '1.8.73','all');
     }
 
     function admin_footer()
@@ -388,6 +388,15 @@ trait Admin_Functions
         <?php
 
     }
+
+    function setting_hide_country_prefix()
+    {
+        $options = get_option('idehweb_lwp_settings');
+        if (!isset($options['idehweb_hide_country_prefix'])) $options['idehweb_hide_country_prefix'] = '0';
+        echo '<input type="hidden" name="idehweb_lwp_settings[idehweb_hide_country_prefix]" value="0" />
+    <label><input type="checkbox" id="idehweb_hide_country_prefix" name="idehweb_lwp_settings[idehweb_hide_country_prefix]" value="1"' . (($options['idehweb_hide_country_prefix']) ? ' checked="checked"' : '') . ' />' . esc_html__('Hide country code selector (for local-only sites)', 'login-with-phone-number') . '</label>
+    <p class="description lwp-hide-prefix-note" style="' . (($options['idehweb_hide_country_prefix']) ? '' : 'display:none;') . 'color:#a94442;">' . esc_html__('Make sure you set a Default Country above — with the selector hidden, all numbers will be treated as that country. If left empty, it defaults to the US.', 'login-with-phone-number') . '</p>';
+    }
     function setting_idehweb_token()
     {
         $options = get_option('idehweb_lwp_settings');
@@ -413,6 +422,7 @@ trait Admin_Functions
             ["value" => "firebase","isFree" => true, "label" => __("Firebase - Google", 'login-with-phone-number')],
             ["value" => "custom","isFree" => true, "label" => __("Custom (Config Your Gateway)", 'login-with-phone-number')],
             ["value" => "msg91", "label" => __("Msg91 (PRO)", 'login-with-phone-number')],
+            ["value" => "webruno", "label" => __("Webruno", 'login-with-phone-number')],
             ["value" => "drpayamak", "label" => __("Drpayamak (PRO)", 'login-with-phone-number')],
             ["value" => "kavenegar", "label" => __("Kavenegar (PRO)", 'login-with-phone-number')],
 
@@ -812,6 +822,18 @@ trait Admin_Functions
 		<p class="description">' . esc_html__('enter length of activation code', 'login-with-phone-number') . '</p>';
 
     }
+
+    function setting_idehweb_otp_max_attempts()
+    {
+        $options = get_option('idehweb_lwp_settings');
+
+        if (!isset($options['idehweb_otp_max_attempts'])) $options['idehweb_otp_max_attempts'] = '5';
+
+        echo '<input type="number" min="1" max="20" name="idehweb_lwp_settings[idehweb_otp_max_attempts]" class="regular-text" value="' . esc_attr($options['idehweb_otp_max_attempts']) . '" />
+		<p class="description">' . esc_html__('max wrong OTP attempts before the code is invalidated and user must request a new one', 'login-with-phone-number') . '</p>';
+
+    }
+
     function setting_idehweb_login_message()
     {
         $options = get_option('idehweb_lwp_settings');
@@ -892,10 +914,10 @@ trait Admin_Functions
     {
 
         $options = get_option('idehweb_lwp_settings');
-        if (!isset($options['idehweb_term_and_conditions_text'])) $options['idehweb_term_and_conditions_text'] = esc_html__('By submitting, you agree to the Terms and Privacy Policy', 'login-with-phone-number');
+        if (!isset($options['idehweb_term_and_conditions_text'])) $options['idehweb_term_and_conditions_text'] = esc_html__('By submitting, you agree to the {terms_link} and {privacy_link}', 'login-with-phone-number');
         else $options['idehweb_term_and_conditions_text'] = ($options['idehweb_term_and_conditions_text']);
         echo '<textarea name="idehweb_lwp_settings[idehweb_term_and_conditions_text]" class="regular-text">' . esc_attr($options['idehweb_term_and_conditions_text']) . '</textarea>
-		<p class="description">' . esc_html__('enter term and condition accepting text', 'login-with-phone-number') . '</p>';
+		<p class="description">' . esc_html__('use {terms_link} and {privacy_link} in your text — they will be replaced with the actual Terms and Privacy Policy links', 'login-with-phone-number') . '</p>';
     }
 
     function setting_term_and_conditions_link()
@@ -907,7 +929,13 @@ trait Admin_Functions
         echo '<textarea name="idehweb_lwp_settings[idehweb_term_and_conditions_link]" class="regular-text">' . esc_attr($options['idehweb_term_and_conditions_link']) . '</textarea>
 		<p class="description">' . esc_html__('enter term and condition link', 'login-with-phone-number') . '</p>';
     }
-
+    function setting_privacy_policy_link()
+    {
+        $options = get_option('idehweb_lwp_settings');
+        if (!isset($options['idehweb_privacy_policy_link'])) $options['idehweb_privacy_policy_link'] = '#';
+        echo '<textarea name="idehweb_lwp_settings[idehweb_privacy_policy_link]" class="regular-text">' . esc_attr($options['idehweb_privacy_policy_link']) . '</textarea>
+		<p class="description">' . esc_html__('enter privacy policy link', 'login-with-phone-number') . '</p>';
+    }
     function setting_term_and_conditions_default_checked()
     {
         $options = get_option('idehweb_lwp_settings');
@@ -925,8 +953,9 @@ trait Admin_Functions
         }
         $roles = $this->get_roles();
         ?>
-        <select name="<?php echo class_exists(LWP_PRO::class) ? 'idehweb_lwp_settings[idehweb_default_role]' : ''; ?>"
-                id="idehweb_default_role">
+
+        <select name="idehweb_lwp_settings[idehweb_default_role]"
+        id="idehweb_default_role">
             <option selected="selected" value=""><?php echo esc_html__('select default role', 'login-with-phone-number'); ?></option>
             <?php
 
@@ -1005,7 +1034,7 @@ trait Admin_Functions
         echo '<label><input type="checkbox" name="idehweb_lwp_settings[idehweb_show_form_all_pages]" class="idehweb_show_form_all_pages" value="1"' . (($options['idehweb_show_form_all_pages']) ? ' checked="checked"' : '') . ' />' . esc_html__('I want the login/register form to show on all pages', 'login-with-phone-number') . '</label>';
 
     }
-    public function check_sms_gateway_configuration_notice($page)
+    public function check_sms_gateway_configuration_notice($page = null)
     {
         // Get the settings
         $options = get_option('idehweb_lwp_settings');
@@ -1147,6 +1176,7 @@ trait Admin_Functions
         add_settings_field('idehweb_token', __('Enter api key', 'login-with-phone-number'), array(&$this, 'setting_idehweb_token'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel alwaysDisplayNone']);
         add_settings_field('idehweb_country_codes', __('Country code accepted in front', 'login-with-phone-number'), array(&$this, 'setting_country_code'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel related_to_phone_number_login lwp-tab-general-settings']);
         add_settings_field('idehweb_country_codes_default', __('Default Country', 'login-with-phone-number'), array(&$this, 'setting_country_code_default'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel related_to_phone_number_login lwp-tab-general-settings']);
+        add_settings_field('idehweb_hide_country_prefix', __('Hide country prefix', 'login-with-phone-number'), array(&$this, 'setting_hide_country_prefix'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel related_to_phone_number_login lwp-tab-general-settings']);
         add_settings_field('idehweb_store_number_with_country_code', __('Store numbers with country code', 'login-with-phone-number'), array(&$this, 'setting_idehweb_store_number_with_country_code'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-tab-general-settings']);
 
         add_settings_field('idehweb_default_gateways', __('sms default gateway', 'login-with-phone-number'), array(&$this, 'setting_default_gateways'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel related_to_defaultgateway lwp-tab-gateway-settings']);
@@ -1169,6 +1199,7 @@ trait Admin_Functions
         add_settings_field('idehweb_password_login', __('Enable password login', 'login-with-phone-number'), array(&$this, 'setting_idehweb_password_login'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-tab-form-settings']);
         add_settings_field('idehweb_redirect_url', __('Enter redirect url', 'login-with-phone-number'), array(&$this, 'setting_idehweb_url_redirect'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-tab-general-settings']);
         add_settings_field('idehweb_length_of_activation_code', __('Enter length of activation code', 'login-with-phone-number'), array(&$this, 'setting_idehweb_length_of_activation_code'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-tab-general-settings']);
+        add_settings_field('idehweb_otp_max_attempts', __('Max OTP attempts', 'login-with-phone-number'), array(&$this, 'setting_idehweb_otp_max_attempts'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-tab-general-settings']);
         add_settings_field('idehweb_login_message', __('Enter login message', 'login-with-phone-number'), array(&$this, 'setting_idehweb_login_message'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-tab-general-settings']);
         add_settings_field('idehweb_use_phone_number_for_username', __('use phone number for username', 'login-with-phone-number'), array(&$this, 'idehweb_use_phone_number_for_username'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-tab-general-settings']);
         add_settings_field('idehweb_default_username', __('Default username', 'login-with-phone-number'), array(&$this, 'setting_default_username'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel related_to_upnfu lwp-tab-general-settings']);
@@ -1179,6 +1210,7 @@ trait Admin_Functions
         add_settings_field('idehweb_enable_accept_terms_and_condition', __('Enable accept term & conditions', 'login-with-phone-number'), array(&$this, 'idehweb_enable_accept_term_and_conditions'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-tab-form-settings']);
         add_settings_field('idehweb_term_and_conditions_text', __('Text of term & conditions part', 'login-with-phone-number'), array(&$this, 'setting_term_and_conditions_text'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel related-to-accept-terms lwp-tab-form-settings']);
         add_settings_field('idehweb_term_and_conditions_link', __('Link of term & conditions', 'login-with-phone-number'), array(&$this, 'setting_term_and_conditions_link'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel related-to-accept-terms  lwp-tab-form-settings']);
+        add_settings_field('idehweb_privacy_policy_link', __('Link of privacy policy', 'login-with-phone-number'), array(&$this, 'setting_privacy_policy_link'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel related-to-accept-terms lwp-tab-form-settings']);
         add_settings_field('idehweb_term_and_conditions_default_checked', __('Check term & conditions by default?', 'login-with-phone-number'), array(&$this, 'setting_term_and_conditions_default_checked'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel related-to-accept-terms lwp-tab-form-settings']);
 
         add_settings_field('idehweb_default_role', __('Default Role', 'login-with-phone-number'), array(&$this, 'setting_default_role'), 'idehweb-lwp', 'idehweb-lwp', ['label_for' => '', 'class' => 'ilwplabel lwp-tab-general-settings']);
@@ -1415,18 +1447,29 @@ trait Admin_Functions
                     $locale = get_locale();
                     if ($locale == 'fa_IR') {
                         ?>
-                        <a style="margin-top: 10px;display:block"
-                           href="<?php echo esc_url("https://webruno.ir/?utm_source=lwp-plugin&utm_medium=banner-plugin-lwp&utm_campaign=plugin-install"); ?>"
-                           target="_blank">
-                            <img style="width: 100%;max-width: 100%"
-                                 src="<?php echo esc_url(plugins_url('../images/web-design.gif', __FILE__)) ?>"/>
-                        </a>
-                        <a style="margin-top: 10px;display:block"
-                           href="<?php echo esc_url("https://idehweb.ir/%D8%A2%D9%85%D9%88%D8%B2%D8%B4-%D9%86%D9%8F%D8%B5%D8%A8-%D8%A7%D9%81%D8%B2%D9%88%D9%86%D9%87-%D9%88%D8%B1%D9%88%D8%AF-%D8%A8%D8%A7-%D8%B4%D9%85%D8%A7%D8%B1%D9%87-%D9%85%D9%88%D8%A8%D8%A7%DB%8C%D9%84-%D8%AF"); ?>"
-                           target="_blank">
-                            <img style="width: 100%;max-width: 100%"
-                                 src="<?php echo esc_url(plugins_url('../images/login-with-phone-number-for-iran.gif', __FILE__)) ?>"/>
-                        </a>
+<!--                        <a style="margin-top: 10px;display:block"-->
+<!--                           href="--><?php //echo esc_url("https://webruno.ir/?utm_source=lwp-plugin&utm_medium=banner-plugin-lwp&utm_campaign=plugin-install"); ?><!--"-->
+<!--                           target="_blank">-->
+<!--                            <img style="width: 100%;max-width: 100%"-->
+<!--                                 src="--><?php //echo esc_url(plugins_url('../images/web-design.gif', __FILE__)) ?><!--"/>-->
+<!--                        </a>-->
+<!--                        <a style="margin-top: 10px;display:block"-->
+<!--                           href="--><?php //echo esc_url("https://idehweb.ir/%D8%A2%D9%85%D9%88%D8%B2%D8%B4-%D9%86%D9%8F%D8%B5%D8%A8-%D8%A7%D9%81%D8%B2%D9%88%D9%86%D9%87-%D9%88%D8%B1%D9%88%D8%AF-%D8%A8%D8%A7-%D8%B4%D9%85%D8%A7%D8%B1%D9%87-%D9%85%D9%88%D8%A8%D8%A7%DB%8C%D9%84-%D8%AF"); ?><!--"-->
+<!--                           target="_blank">-->
+<!--                            <img style="width: 100%;max-width: 100%"-->
+<!--                                 src="--><?php //echo esc_url(plugins_url('../images/login-with-phone-number-for-iran.gif', __FILE__)) ?><!--"/>-->
+<!--                        </a>-->
+                        <div class="lwp-pro-upsell-card">
+                            <p><?php esc_html_e('Need extra fields, custom styling, or more SMS gateways?', 'login-with-phone-number'); ?></p>
+                            <a class="button-secondary" href="<?php echo esc_url('https://idehweb.com/product/login-with-phone-number-in-wordpress/?utm_source=lwp-plugin&utm_medium=banner-lwp&utm_campaign=plugin-install'); ?>" target="_blank">
+                                <?php esc_html_e('See PRO features', 'login-with-phone-number'); ?>
+                            </a>
+                        </div>
+<!--                        <a href="--><?php //echo esc_url("https://idehweb.com/product/login-with-phone-number-in-wordpress/?utm_source=lwp-plugin&utm_medium=banner-lwp&utm_campaign=plugin-install"); ?><!--"-->
+<!--                           target="_blank">-->
+<!--                            <img style="width: 100%;max-width: 100%"-->
+<!--                                 src="--><?php //echo esc_url(plugins_url('../images/login-with-phone-number-en-final1.gif', (__FILE__))) ?><!--"/>-->
+<!--                        </a>-->
 
 <!--                        <a style="margin-top: 10px;display:block"-->
 <!--                           href="--><?php //echo esc_url("https://idehweb.ir/product/%D9%82%D8%A7%D9%84%D8%A8-%D9%88%D8%B1%D8%AF%D9%BE%D8%B1%D8%B3%DB%8C-%D9%86%D9%88%D8%AF%DB%8C-%D9%88%D8%A8/?utm_source=lwp-plugin&utm_medium=banner-nodeeweb&utm_campaign=plugin-install"); ?><!--"-->
@@ -1438,24 +1481,31 @@ trait Admin_Functions
                         <?php
                     } else {
                         ?>
-                        <a style="margin-bottom: 10px;display:block"
-                           href="<?php echo esc_url("https://webruno.com/?utm_source=lwp-plugin&utm_medium=banner-plugin-lwp&utm_campaign=plugin-install"); ?>"
-                           target="_blank">
-                            <img style="width: 100%;max-width: 100%"
-                                 src="<?php echo esc_url(plugins_url('../images/webdesign.gif', __FILE__)) ?>"/>
-                        </a>
-                        <a href="<?php echo esc_url("https://idehweb.com/product/login-with-phone-number-in-wordpress/?utm_source=lwp-plugin&utm_medium=banner-lwp&utm_campaign=plugin-install"); ?>"
-                           target="_blank">
-                            <img style="width: 100%;max-width: 100%"
-                                 src="<?php echo esc_url(plugins_url('../images/login-with-phone-number-en-final1.gif', (__FILE__))) ?>"/>
-                        </a>
+<!--                        <a style="margin-bottom: 10px;display:block"-->
+<!--                           href="--><?php //echo esc_url("https://webruno.com/?utm_source=lwp-plugin&utm_medium=banner-plugin-lwp&utm_campaign=plugin-install"); ?><!--"-->
+<!--                           target="_blank">-->
+<!--                            <img style="width: 100%;max-width: 100%"-->
+<!--                                 src="--><?php //echo esc_url(plugins_url('../images/webdesign.gif', __FILE__)) ?><!--"/>-->
+<!--                        </a>-->
+<!--                        <a href="--><?php //echo esc_url("https://idehweb.com/product/login-with-phone-number-in-wordpress/?utm_source=lwp-plugin&utm_medium=banner-lwp&utm_campaign=plugin-install"); ?><!--"-->
+<!--                           target="_blank">-->
+<!--                            <img style="width: 100%;max-width: 100%"-->
+<!--                                 src="--><?php //echo esc_url(plugins_url('../images/login-with-phone-number-en-final1.gif', (__FILE__))) ?><!--"/>-->
+<!--                        </a>-->
 
-                        <a style="margin-top: 10px;display:block"
-                           href="<?php echo esc_url("https://idehweb.com/product/nodeeweb-wordpress-theme/?utm_source=lwp-plugin&utm_medium=banner-nodeeweb&utm_campaign=plugin-install"); ?>"
-                           target="_blank">
-                            <img style="width: 100%;max-width: 100%"
-                                 src="<?php echo esc_url(plugins_url('../images/nodeeweb-wordpress-theme.png', (__FILE__))) ?>"/>
-                        </a>
+                        <div class="lwp-pro-upsell-card">
+                            <p><?php esc_html_e('Need extra fields, custom styling, or more SMS gateways?', 'login-with-phone-number'); ?></p>
+                            <a class="button-secondary" href="<?php echo esc_url('https://idehweb.com/product/login-with-phone-number-in-wordpress/?utm_source=lwp-plugin&utm_medium=banner-lwp&utm_campaign=plugin-install'); ?>" target="_blank">
+                                <?php esc_html_e('See PRO features', 'login-with-phone-number'); ?>
+                            </a>
+                        </div>
+
+<!--                        <a style="margin-top: 10px;display:block"-->
+<!--                           href="--><?php //echo esc_url("https://idehweb.com/product/nodeeweb-wordpress-theme/?utm_source=lwp-plugin&utm_medium=banner-nodeeweb&utm_campaign=plugin-install"); ?><!--"-->
+<!--                           target="_blank">-->
+<!--                            <img style="width: 100%;max-width: 100%"-->
+<!--                                 src="--><?php //echo esc_url(plugins_url('../images/nodeeweb-wordpress-theme.png', (__FILE__))) ?><!--"/>-->
+<!--                        </a>-->
                         <?php
                     }
                     ?>
@@ -1825,6 +1875,7 @@ trait Admin_Functions
     function setting_idehweb_localization_disable_automatic_placeholder()
     {
         $options = get_option('idehweb_lwp_settings_localization');
+        if (!is_array($options)) $options = [];
         if (!isset($options['idehweb_localization_disable_placeholder'])) $options['idehweb_localization_disable_placeholder'] = '0';
         echo '<input  type="hidden" name="idehweb_lwp_settings_localization[idehweb_localization_disable_placeholder]" value="0" />
 		<label><input type="checkbox" id="idehweb_lwp_settings_localization_disable_placeholder" name="idehweb_lwp_settings_localization[idehweb_localization_disable_placeholder]" value="1"' . (($options['idehweb_localization_disable_placeholder']) ? ' checked="checked"' : '') . ' />' . esc_html__('Turn off automatic placeholder based on country', 'login-with-phone-number') . '</label>';
@@ -1835,6 +1886,8 @@ trait Admin_Functions
     function setting_idehweb_localization_enable_custom_localization()
     {
         $options = get_option('idehweb_lwp_settings_localization');
+        if (!is_array($options)) $options = [];
+
         if (!isset($options['idehweb_localization_status'])) $options['idehweb_localization_status'] = '0';
         echo '<input  type="hidden" name="idehweb_lwp_settings_localization[idehweb_localization_status]" value="0" />
 		<label><input type="checkbox" id="idehweb_lwp_settings_localization_status" name="idehweb_lwp_settings_localization[idehweb_localization_status]" value="1"' . (($options['idehweb_localization_status']) ? ' checked="checked"' : '') . ' />' . esc_html__('enable localization', 'login-with-phone-number') . '</label>';
@@ -1844,6 +1897,8 @@ trait Admin_Functions
     function setting_idehweb_localization_of_login_form()
     {
         $options = get_option('idehweb_lwp_settings_localization');
+        if (!is_array($options)) $options = [];
+
         if (!isset($options['idehweb_localization_title_of_login_form'])) $options['idehweb_localization_title_of_login_form'] = 'Login / register';
         else $options['idehweb_localization_title_of_login_form'] = sanitize_text_field($options['idehweb_localization_title_of_login_form']);
 
@@ -1856,6 +1911,8 @@ trait Admin_Functions
     function setting_idehweb_localization_of_login_form_email()
     {
         $options = get_option('idehweb_lwp_settings_localization');
+        if (!is_array($options)) $options = [];
+
         if (!isset($options['idehweb_localization_title_of_login_form_email'])) $options['idehweb_localization_title_of_login_form_email'] = 'Login / register';
         else $options['idehweb_localization_title_of_login_form_email'] = sanitize_text_field($options['idehweb_localization_title_of_login_form_email']);
 
@@ -1867,6 +1924,7 @@ trait Admin_Functions
     function setting_idehweb_localization_placeholder_of_phonenumber_field()
     {
         $options = get_option('idehweb_lwp_settings_localization');
+        if (!is_array($options)) $options = [];
         if (!isset($options['idehweb_localization_placeholder_of_phonenumber_field'])) $options['idehweb_localization_placeholder_of_phonenumber_field'] = '';
         else $options['idehweb_localization_placeholder_of_phonenumber_field'] = sanitize_text_field($options['idehweb_localization_placeholder_of_phonenumber_field']);
 
@@ -1877,6 +1935,7 @@ trait Admin_Functions
     function setting_idehweb_localization_firebase_option_title()
     {
         $options = get_option('idehweb_lwp_settings_localization');
+        if (!is_array($options)) $options = [];
         if (!isset($options['idehweb_localization_firebase_option_title'])) $options['idehweb_localization_firebase_option_title'] = '';
         else $options['idehweb_localization_firebase_option_title'] = sanitize_text_field($options['idehweb_localization_firebase_option_title']);
 
